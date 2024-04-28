@@ -1,0 +1,281 @@
+#Project in Fundamental of Software Development
+
+#Belle Online Jewellery Shop sell variety of jewellery and fashion accessories
+#Such as earring, necklace, bracelet, hair clip, etc.
+
+#This is Belle's Shop & Stock Management
+
+
+
+codeList = [1001,1002,1003,1004,1005]
+typeList = ["Stud Earring", "Necklace", "Nose ring", "Ear Cuff", "Bracelet"]
+priceList= [4.99, 20, 14.99, 17.99, 39.99]
+materialList=["Pearl","Rhodium","Silver","Gold","Jade"]
+quantityList=[25,20,20,30,25]
+
+
+#Function for Adding  Product to the current list of product 
+def add_product():
+    while True:
+    #im using (while true and break) in this program as i find it comfortable to use
+    #unlike the normal while loop, i dont need to initialize my variable 
+    
+        while True:
+            code= int(input("Enter Jewellery Code:      "))
+            if code in codeList:
+                print("invalid, it is a pre-existing code, Please enter new code")
+            else:
+                break
+             
+
+        types= input("Enter Jewellery Type:      ")
+        price= float(input("Enter Jewellery Price:     "))
+        material= input("Enter Jewellery Material:  ")
+       
+        while True:
+            quantity= int(input("Enter Jewellery Quantity:  "))
+            if quantity <= 9 or quantity >= 51:
+                print("Please Enter quantity between 10 and 50")
+            else:
+                break
+             
+        
+        codeList.append(code)
+        typeList.append(types)
+        priceList.append(price)
+        materialList.append(material)
+        quantityList.append(quantity)
+
+       
+        
+        repeat_option=input("Do you want to enter another product? Yes or No: ")
+        if repeat_option.lower() !="yes":
+            break
+        #this will break the first while loop otherwise it will continue asking for another product
+        
+#Function for checking if the product exist by code input and result will return boolean value          
+def check_product():
+    global check
+    #I made Check global so i can use it to index and access code details
+    check= int(input("Enter Jewellery Code: "))
+    if check in codeList:
+        return True
+        #returning if statements decision
+            
+    else:
+        print("Code not found! Please Try again")
+        return False
+    
+#Function for searching for Product using product code input and result will show product details       
+def search_product():
+    global a #making a global so i can use it to access details of the code given in update function
+    while True:
+        #using check_product function to validate if the code exist
+        if check_product() == True:
+            a=codeList.index(check)
+            print("__________________________________________________________________________")
+            print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
+            print("__________________________________________________________________________")
+            print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a],typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
+            print("\n")
+            break
+            
+                      
+    
+#Function for updating Product details using search_product() function
+def update_product():
+    
+    search_product()
+    print("\n")
+    print("==========================================================================")
+    y_n=input("Do you want to update Jewellery Type? Enter yes or no: ")
+    if y_n.lower() == "yes":
+        type2= input("Enter new Jewellery Type:  ")
+        typeList[a]=type2 #this will overwrite the existing element in the given index
+        
+    y_n=input("Do you want to update Jewellery Price? Enter yes or no: ")
+    if y_n.lower() == "yes":
+        price2= float(input("Enter new Jewellery Price:  "))
+        priceList[a]=price2
+        
+    y_n=input("Do you want to update Jewellery Material? Enter yes or no: ")
+    if y_n.lower() == "yes":
+        material2= input("Enter new Jewellery Material:  ")
+        materialList[a]=material2
+
+    y_n=input("Do you want to update Jewellery Quantity? Enter yes or no: ")
+    if y_n.lower() == "yes":
+        while True:
+            quantity2= int(input("Enter new Jewellery Quantity:  "))
+            if quantity2 <= 9 or quantity2 >= 51:
+                print("Please Enter quantity between 10 and 50")
+            else:
+                quantityList[a]=quantity2
+                break
+      
+    
+    #not required but i added this part of the function that display the updated information or details of the specific product    
+    print("\n")
+    print("Updated information for:",check)
+    print("__________________________________________________________________________")
+    print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
+    print("__________________________________________________________________________")
+    print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a]  ,typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
+    print("\n")
+
+
+#function that allows customer to buy product from the shop, it will show subtotal, 15% tax, cummulated discount and total price to pay.    
+def buy_product():
+    cartT=[] #use to store product type associated to the code entered
+    cartP=[] #use to store all the computed total of the price mutiplied to quantity entered
+    cartQ=[] #use to evaluate how much discount applies to the purchase
+    
+    
+    while True:
+        #using check_product function to validate if the code exist
+        print()
+        if check_product() == True:
+            i=codeList.index(check)
+            
+            while True:
+                if quantityList[i]==0:
+                    print(typeList[i],"is sold out!")
+                    break
+            
+                
+                itemQ=int(input("Please enter Product quantity:  "))
+                if itemQ > quantityList[i]:
+                    print("Sorry We only have "+str(quantityList[i])+" of "+str(typeList[i])+" available")
+                    y_n=input("Do you want to enter new quantity? Enter yes or no: ")
+                    if y_n.lower() == "yes":
+                        continue
+                    else:
+                        break
+                cartQ.append(itemQ)
+                cartT.append(check)
+                
+                #this equation will update product quantity everytime it is added to cart
+                quantityList[i]-=itemQ
+                initialtotal=itemQ * priceList[i]
+                cartP.append(initialtotal)
+                print("Your Subtotal is:  $","{:.2f}".format(sum(cartP)))
+                break
+                
+                    
+        anotherP=input("Do you want to buy another Product? Enter yes or no: ")
+        if anotherP.lower() == "yes":
+            continue #if yes, it will continue looping to ask for another product
+        else: #if no it will continue on calculating the total
+                
+                
+                #if statement that will determine how much discount a customer have garnered
+                #through the total of cartQ or cart quantity
+                if sum(cartQ) >= 10 and sum(cartQ) <20:
+                    discount= 0.10
+                    pDis="10%" #pDis is use to show the percentage of discount in the receipt
+                elif sum(cartQ)>=20 and sum(cartQ)<30:
+                    discount= 0.20
+                    pDis="20%"
+                elif sum(cartQ)>=30:
+                    discount= 0.30
+                    pDis="30%"
+                else:
+                    discount=0
+                    pDis="0%"
+                
+    
+    
+                #equation for amount of tax included in product price
+                gst=sum(cartP)*.15
+                #this will how how much discount garnered on the purchase
+                dis=sum(cartP)*discount
+                #total price to pay after discount has been deducted
+                total=sum(cartP)-dis
+                
+                #not required but this will display the breakdown of price to pay
+                #if the cart is empty it will not print out any output and will go back to the main menu
+                if sum(cartP) != 0:
+                    print("\n")
+                    print("==========================================================")
+                    print("\t\t   Purchase Receipt")
+                    print("==========================================================")
+                    for i in range(len(cartT)):
+                        e= codeList.index(cartT[i])
+                        print(" {0}\t{1}\t{2}\t\t\t{3}".format(typeList[e],"  X ",cartQ[i],"{:.2f}".format(cartP[i])))
+                        
+                    
+                    print("__________________________________________________________")        
+                    print(" {0}\t\t\t\t\t{1}".format("Subtotal","{:.2f}".format(sum(cartP))))
+                    print(" {0}\t\t\t\t{1}  ".format("GST inclusive 15%", "{:.2f}".format(gst)))
+                    print(" {0}{1}\t\t\t\t       {2}{3}".format("Discount ",pDis,"-","{:.2f}".format(dis)))
+                    print("__________________________________________________________")
+                    print(" {0}\t\t\t\t\t\t{1}".format("TOTAL", "{:.2f}".format(total)))
+                    print("__________________________________________________________")
+                    print("\n")
+            
+                break
+    else:#Else for the first if statement
+        buy_product() #this allows the program to repeatedly ask for code until user enter the right code
+            
+    
+        
+    
+#not required, I added this function as i think it will best fit in the stock management scenario    
+def stocklist():
+    
+    print("__________________________________________________________________________")
+    print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
+    print("__________________________________________________________________________")
+    for i in range(len(codeList)):
+        print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[i]  ,typeList[i],"{:.2f}".format(priceList[i]),materialList[i],quantityList[i]))
+        print()
+    
+    print("__________________________________________________________________________")  
+        
+    
+#function for the menu, (NOT REQUIRED) but i made it separate form the main_program function 
+def menu_option():
+    
+    print("==========================================================")
+    print("\t\tBELLE ONLINE JEWELLERY SHOP")
+    print("\t\t    by Danica Montano")
+    print("==========================================================")
+    print("\tPlease select the following options:")
+    print("\t1.Add Product")
+    print("\t2.Search Product")
+    print("\t3.Update Product")
+    print("\t4.Buy Product")
+    print("\t5.Exit")
+    print("==========================================================")
+    
+    
+#Main Program
+while True:
+    menu_option()
+    option=int(input("Which option would you like to do? 1, 2, 3, 4, or 5 ? : "))
+    print()
+        
+    if option==1:
+        add_product()
+        print()
+    elif option==2:
+        search_product()
+        viewoption=input("Do you what to view shop's stocklist? Enter yes or no: ")
+        #calling stocklist function that allows user to view all product details
+        if viewoption.lower() =="yes":
+            stocklist()
+            print("\n")
+    elif option==3:
+        update_product()
+        print()
+    elif option==4:
+        buy_product()
+        print()
+    elif option==5:
+        print("Goodbye!")
+        break
+    #only allows user to enter numbers 1-5 otherwise system will show invalid input
+    else:
+        print("Invalid! Please enter 1, 2, 3, 4 or 5.")
+        print("\n")
+    
