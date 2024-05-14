@@ -15,19 +15,11 @@ quantityList=[25,20,20,30,25]
 
 
 #Function for Adding  Product to the current list of product 
-def add_product():
+def add_product(code):
     while True:
     #im using (while true and break) in this program as i find it comfortable to use
     #unlike the normal while loop, i dont need to initialize my variable 
     
-        while True:
-            code= int(input("Enter Jewellery Code:      "))
-            if code in codeList:
-                print("invalid, it is a pre-existing code, Please enter new code")
-            else:
-                break
-             
-
         types= input("Enter Jewellery Type:      ")
         price= float(input("Enter Jewellery Price:     "))
         material= input("Enter Jewellery Material:  ")
@@ -59,33 +51,40 @@ def check_product():
     #I made Check global so i can use it to index and access code details
     check= int(input("Enter Jewellery Code: "))
     if check in codeList:
-        return True
+        return check
         #returning if statements decision
             
     else:
         print("Code not found! Please Try again")
         return False
+        
     
 #Function for searching for Product using product code input and result will show product details       
-def search_product():
+def search_product(code):
     global a #making a global so i can use it to access details of the code given in update function
-    while True:
-        #using check_product function to validate if the code exist
-        if check_product() == True:
-            a=codeList.index(check)
-            print("__________________________________________________________________________")
-            print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
-            print("__________________________________________________________________________")
-            print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a],typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
-            print("\n")
-            break
+    # while True:
+    #     #using check_product function to validate if the code exist
+    #     if check_product() == True:
+    #         a=codeList.index(check)
+    #         print("__________________________________________________________________________")
+    #         print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
+    #         print("__________________________________________________________________________")
+    #         print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a],typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
+    #         print("\n")
+    #         break
+    a=codeList.index(code)
+    print("__________________________________________________________________________")
+    print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
+    print("__________________________________________________________________________")
+    print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a],typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
+    print("\n")
             
                       
     
 #Function for updating Product details using search_product() function
-def update_product():
+def update_product(code):
     
-    search_product()
+    search_product(code)
     print("\n")
     print("==========================================================================")
     y_n=input("Do you want to update Jewellery Type? Enter yes or no: ")
@@ -116,7 +115,7 @@ def update_product():
     
     #not required but i added this part of the function that display the updated information or details of the specific product    
     print("\n")
-    print("Updated information for:",check)
+    print("Updated information for:",code)
     print("__________________________________________________________________________")
     print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
     print("__________________________________________________________________________")
@@ -256,18 +255,36 @@ while True:
     print()
         
     if option==1:
-        add_product()
-        print()
+        while True:
+            code= int(input("Enter Jewellery Code:      "))
+            if code in codeList:
+                print("invalid, it is a pre-existing code, Please enter new code")
+            else:
+                add_product(code)
+                print()
+                break
     elif option==2:
-        search_product()
-        viewoption=input("Do you what to view shop's stocklist? Enter yes or no: ")
-        #calling stocklist function that allows user to view all product details
-        if viewoption.lower() =="yes":
-            stocklist()
-            print("\n")
+        while True:
+            code= int(input("Enter Jewellery Code:      "))
+            if code in codeList:
+                search_product(code)
+                viewoption=input("Do you what to view shop's stocklist? Enter yes or no: ")
+                #calling stocklist function that allows user to view all product details
+                if viewoption.lower() =="yes":
+                    stocklist()
+                    print("\n")
+                break
+            else:
+                print("Code not found! Please Try again")
+        
     elif option==3:
-        update_product()
-        print()
+        while True:
+            code= int(input("Enter Jewellery Code:      "))
+            if code in codeList:
+                update_product(code)
+                break
+            else:
+                print("Code not found! Please Try again")
     elif option==4:
         buy_product()
         print()
