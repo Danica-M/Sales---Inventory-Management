@@ -286,8 +286,13 @@ while True:
             else:
                 print("Code not found! Please Try again")
     elif option==4:
-        buy_product()
-        print()
+        while True:
+            code= int(input("Enter Jewellery Code:      "))
+            if code in codeList:
+                buy_product(code)
+                break
+            else:
+                print("Code not found! Please Try again")
     elif option==5:
         print("Goodbye!")
         break
