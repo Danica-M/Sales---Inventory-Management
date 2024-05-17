@@ -47,31 +47,18 @@ def add_product(code):
         
 #Function for checking if the product exist by code input and result will return boolean value          
 def check_product():
-    global check
-    #I made Check global so i can use it to index and access code details
-    check= int(input("Enter Jewellery Code: "))
-    if check in codeList:
-        return check
-        #returning if statements decision
-            
-    else:
-        print("Code not found! Please Try again")
-        return False
+    while True:
+        code= int(input("Enter Jewellery Code:      "))
+        if code in codeList:
+            return code
+            break
+        else:
+            print("Code not found! Please Try again")
         
     
 #Function for searching for Product using product code input and result will show product details       
 def search_product(code):
     global a #making a global so i can use it to access details of the code given in update function
-    # while True:
-    #     #using check_product function to validate if the code exist
-    #     if check_product() == True:
-    #         a=codeList.index(check)
-    #         print("__________________________________________________________________________")
-    #         print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
-    #         print("__________________________________________________________________________")
-    #         print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(codeList[a],typeList[a],"{:.2f}".format(priceList[a]),materialList[a],quantityList[a]))
-    #         print("\n")
-    #         break
     a=codeList.index(code)
     print("__________________________________________________________________________")
     print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE ","TYPE","PRICE","MATERIAL","QUANTITY"))
@@ -264,27 +251,9 @@ while True:
                 print()
                 break
     elif option==2:
-        while True:
-            code= int(input("Enter Jewellery Code:      "))
-            if code in codeList:
-                search_product(code)
-                viewoption=input("Do you what to view shop's stocklist? Enter yes or no: ")
-                #calling stocklist function that allows user to view all product details
-                if viewoption.lower() =="yes":
-                    stocklist()
-                    print("\n")
-                break
-            else:
-                print("Code not found! Please Try again")
-        
+        search_product(check_product())
     elif option==3:
-        while True:
-            code= int(input("Enter Jewellery Code:      "))
-            if code in codeList:
-                update_product(code)
-                break
-            else:
-                print("Code not found! Please Try again")
+        update_product(check_product())
     elif option==4:
         while True:
             code= int(input("Enter Jewellery Code:      "))
