@@ -59,7 +59,8 @@ def search_product(code):
     print("__________________________________________________________________________")
     print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(code, product["type"], "{:.2f}".format(product["price"]), product["material"], product["quantity"]))
     print("\n")
-            
+    
+    
                       
     
 #Function for updating Product details using search_product() function
@@ -93,6 +94,9 @@ def buy_product():
     cart_total = 0  # Variable to keep track of the total cost of items in the cart
     cart_quantity = 0  # Variable to keep track of the total quantity of items in the cart
 
+    # shows the stocklist for customer reference
+    stocklist()
+    
     while True:
         # Check if the product exists and get its code
         code = check_product()
@@ -196,7 +200,7 @@ while True:
     if option==1:
         while True:
             code= int(input("Enter Jewellery Code:      "))
-            if code in codeList:
+            if code in products:
                 print("invalid, it is a pre-existing code, Please enter new code")
             else:
                 add_product(code)
