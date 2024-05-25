@@ -4,15 +4,50 @@
 #Such as earring, necklace, bracelet, hair clip, etc.
 
 #This is Belle's Shop & Stock Management
+import sqlite3
 
+# Connect to the database
+conn = sqlite3.connect('jewellery_shop.db')
+cursor = conn.cursor()
 
-products = {
-    1001: {"type": "Stud Earring", "price": 4.99, "material": "Pearl", "quantity": 25},
-    1002: {"type": "Necklace", "price": 20.00, "material": "Rhodium", "quantity": 20},
-    1003: {"type": "Nose ring", "price": 14.99, "material": "Silver", "quantity": 20},
-    1004: {"type": "Ear Cuff", "price": 17.99, "material": "Gold", "quantity": 30},
-    1005: {"type": "Bracelet", "price": 39.99, "material": "Jade", "quantity": 25},
-}
+# Create the products table if it doesn't exist
+cursor.execute('''CREATE TABLE IF NOT EXISTS products (
+                code INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT,
+                price REAL,
+                material TEXT,
+                quantity INTEGER
+                )''')
+conn.commit()
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='products'")
+table_exists = cursor.fetchone()
+
+# If the products table exists and has no rows, insert the products
+if table_exists:
+    cursor.execute("SELECT COUNT(*) FROM products")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        # Data from the products dictionary
+        products_data = [
+            {"type": "Stud Earring", "price": 4.99, "material": "Pearl", "quantity": 25},
+            {"type": "Necklace", "price": 20.00, "material": "Rhodium", "quantity": 20},
+            {"type": "Nose ring", "price": 14.99, "material": "Silver", "quantity": 20},
+            {"type": "Ear Cuff", "price": 17.99, "material": "Gold", "quantity": 30},
+            {"type": "Bracelet", "price": 39.99, "material": "Jade", "quantity": 25}
+        ]
+
+        # Insert data into the products table
+        for product in products_data:
+            cursor.execute('''INSERT INTO products (type, price, material, quantity)
+                            VALUES (?, ?, ?, ?)''', (product["type"], product["price"], product["material"], product["quantity"]))
+
+        # Commit the changes
+        conn.commit()
+        print("Products loaded into the database.")
+    else:
+        print("Products table is not empty. No action taken.")
+else:
+    print("Products table does not exist. No action taken.")
 
 
 #Function for Adding  Product to the current list of product 
