@@ -10,3 +10,16 @@ The program must store two attributes: code and quantity of each product along w
 - search_product
 - update_product
 - buy_product
+
+
+# Initial Project State
+- This project intially uses multiple arrays that stores product code, type, price, materials, and quantity as minimum requirement for this project.
+- Methods were originally implemented without any parameters.
+
+# Improvement process
+- I played around improving the functionality of the methods by implementing parameters
+- I also transitioned from using multiple arrays to dictionaries, aiming to enhance performance.
+- After successfully implementing functionality with dictionaries, I decided to enhance it further by integrating SQLite, ensuring that data is persisted.
+
+# Future plan
+- My upcoming plan involves integrating a graphical user interface (GUI) into the application.
