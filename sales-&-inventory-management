@@ -4,15 +4,45 @@
 #Such as earring, necklace, bracelet, hair clip, etc.
 
 #This is Belle's Shop & Stock Management
+import sqlite3
 
+# Connect to the database
+conn = sqlite3.connect('jewellery_shop.db')
+cursor = conn.cursor()
 
-products = {
-    1001: {"type": "Stud Earring", "price": 4.99, "material": "Pearl", "quantity": 25},
-    1002: {"type": "Necklace", "price": 20.00, "material": "Rhodium", "quantity": 20},
-    1003: {"type": "Nose ring", "price": 14.99, "material": "Silver", "quantity": 20},
-    1004: {"type": "Ear Cuff", "price": 17.99, "material": "Gold", "quantity": 30},
-    1005: {"type": "Bracelet", "price": 39.99, "material": "Jade", "quantity": 25},
-}
+# Create the products table if it doesn't exist
+cursor.execute('''CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                productCode INTEGER UNIQUE,
+                type TEXT,
+                price REAL,
+                material TEXT,
+                quantity INTEGER
+                )''')
+conn.commit()
+cursor.execute("SELECT COUNT(*) FROM products")
+count = cursor.fetchone()[0]
+
+if count == 0:
+    # Data from the products dictionary
+    products_data = [
+    {"productCode": 1001, "type": "Stud Earring", "price": 4.99, "material": "Pearl", "quantity": 25},
+    {"productCode": 1002, "type": "Necklace", "price": 20.00, "material": "Rhodium", "quantity": 20},
+    {"productCode": 1003, "type": "Nose ring", "price": 14.99, "material": "Silver", "quantity": 20},
+    {"productCode": 1004, "type": "Ear Cuff", "price": 17.99, "material": "Gold", "quantity": 30},
+    {"productCode": 1005, "type": "Bracelet", "price": 39.99, "material": "Jade", "quantity": 25}
+    ]
+
+    # Insert data into the products table
+    for product in products_data:
+        cursor.execute('''INSERT INTO products (productCode, type, price, material, quantity)
+                        VALUES (?, ?, ?, ?, ?)''', (product["productCode"], product["type"], product["price"], product["material"], product["quantity"]))
+
+    # Commit the changes
+    conn.commit()
+    print("Products loaded into the database.")
+else:
+    print("Products table is not empty. No action taken.")
 
 
 #Function for Adding  Product to the current list of product 
@@ -21,19 +51,28 @@ def add_product(code):
     #im using (while true and break) in this program as i find it comfortable to use
     #unlike the normal while loop, i dont need to initialize my variable 
     
+        # Check if the product code already exists
+        cursor.execute("SELECT COUNT(*) FROM products WHERE productCode = ?", (code,))
+        if cursor.fetchone()[0] > 0:
+            print("Error: Product code already exists. Please enter a different product code.")
+            continue
+
         types= input("Enter Jewellery Type:      ")
         price= float(input("Enter Jewellery Price:     "))
         material= input("Enter Jewellery Material:  ")
        
         while True:
             quantity= int(input("Enter Jewellery Quantity:  "))
-            if quantity <= 9 or quantity >= 51:
+            if 10 <= quantity <= 50:
                 print("Please Enter quantity between 10 and 50")
             else:
                 break
              
 
-        products[code] = {"type": types, "price": price, "material": material, "quantity": quantity}
+        cursor.execute('''INSERT INTO products (productCode, type, price, material, quantity)
+                        VALUES (?, ?, ?, ?, ?)''', (code, types, price, material, quantity))
+        conn.commit()
+        print("Product added successfully.")
         
         repeat_option=input("Do you want to enter another product? Yes or No: ")
         if repeat_option.lower() !="yes":
@@ -43,49 +82,69 @@ def add_product(code):
 #Function for checking if the product exist by code input and result will return boolean value          
 def check_product():
     while True:
-        code= int(input("Enter Jewellery Code:      "))
-        if code in products:
-            return code
-            break
+        code = int(input("Enter Product Code:      "))
+        cursor.execute("SELECT * FROM products WHERE productCode = ?", (code,))
+        product = cursor.fetchone()
+        if product:
+            return product[1]  # Return the product code
         else:
             print("Code not found! Please Try again")
         
     
 #Function for searching for Product using product code input and result will show product details       
 def search_product(code):
-    product = products[code]
+    cursor.execute("SELECT * FROM products WHERE productCode = ?", (code,))
+    product = cursor.fetchone()
     print("__________________________________________________________________________")
-    print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE", "TYPE", "PRICE", "MATERIAL", "QUANTITY"))
+    print("{0: <4}\t{1: <6}\t{2: <15}\t{3: <6}\t{4: <10}\t{5: <8}".format("ID", "CODE", "TYPE", "PRICE", "MATERIAL", "QUANTITY"))
     print("__________________________________________________________________________")
-    print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(code, product["type"], "{:.2f}".format(product["price"]), product["material"], product["quantity"]))
+    print("{0: <4}\t{1: <6}\t{2: <15}\t{3: <6}\t{4: <10}\t{5: <8}".format(product[0], product[1], product[2], "{:.2f}".format(product[3]), product[4], product[5]))
     print("\n")
-    
     
                       
     
 #Function for updating Product details using search_product() function
 def update_product(code):
+    # Search for the product and display its details
     search_product(code)
-    if input("Do you want to update Jewellery Type? (yes or no): ").lower() == "yes":
-        products[code]["type"] = input("Enter new Jewellery Type: ")
 
-    if input("Do you want to update Jewellery Price? (yes or no): ").lower() == "yes":
-        products[code]["price"] = float(input("Enter new Jewellery Price: "))
+    # Define a dictionary of attributes and their corresponding column names in the database
+    attributes = {
+        "type": "Jewellery Type",
+        "price": "Jewellery Price",
+        "material": "Jewellery Material",
+        "quantity": "Jewellery Quantity"
+    }
 
-    if input("Do you want to update Jewellery Material? (yes or no): ").lower() == "yes":
-        products[code]["material"] = input("Enter new Jewellery Material: ")
+    # Initialize a list to store updated attributes
+    updated_attributes = []
 
-    if input("Do you want to update Jewellery Quantity? (yes or no): ").lower() == "yes":
-        while True:
-            quantity = int(input("Enter new Jewellery Quantity (10-50): "))
-            if 10 <= quantity <= 50:
-                products[code]["quantity"] = quantity
-                break
+    # Loop through each attribute and prompt the user for updates
+    for column_name, attribute_name in attributes.items():
+        if input(f"Do you want to update {attribute_name}? (yes or no): ").lower() == "yes":
+            # Get the new value for the attribute
+            if column_name == "quantity":
+                while True:
+                    new_value = int(input(f"Enter new {attribute_name} (10-50): "))
+                    if 10 <= new_value <= 50:
+                        break
+                    else:
+                        print("Please enter a quantity between 10 and 50")
             else:
-                print("Please enter a quantity between 10 and 50")
+                new_value = input(f"Enter new {attribute_name}: ")
 
-    print("\nUpdated information for:", code)
-    search_product(code)
+            # Execute the update query
+            cursor.execute(f"UPDATE products SET {column_name} = ? WHERE productCode = ?", (new_value, code))
+            conn.commit()
+
+            # Add the updated attribute to the list
+            updated_attributes.append(attribute_name)
+
+    if updated_attributes:
+        print("\nUpdated information for attributes:", ", ".join(updated_attributes))
+        search_product(code)
+    else:
+        print("No attributes were updated.")
 
 
 #function that allows customer to buy product from the shop, it will show subtotal, 15% tax, cummulated discount and total price to pay.    
@@ -94,32 +153,34 @@ def buy_product():
     cart_total = 0  # Variable to keep track of the total cost of items in the cart
     cart_quantity = 0  # Variable to keep track of the total quantity of items in the cart
 
-    # shows the stocklist for customer reference
+    # Shows the stocklist for customer reference
     stocklist()
-    
+
     while True:
         # Check if the product exists and get its code
         code = check_product()
-        product = products[code]
+        cursor.execute("SELECT * FROM products WHERE productCode = ?", (code,))
+        product = cursor.fetchone()
 
         # Check if the product is sold out
-        if product["quantity"] == 0:
-            print(product["type"], "is sold out!")
+        if product[5] == 0:
+            print(product[2], "is sold out!")
             continue  # Continue to the next iteration to ask for another product code
 
         while True:
             # Ask the user for the quantity they want to buy
             itemQ = int(input("Enter Product Quantity: "))
-            if itemQ > product["quantity"]:
-                print(f"Sorry, we only have {product['quantity']} of {product['type']} available.")
+            if itemQ > product[5]:
+                print(f"Sorry, we only have {product[5]} of {product[2]} available.")
                 # Ask if they want to enter a new quantity
                 if input("Do you want to enter a new quantity? (yes or no): ").lower() != "yes":
                     break  # Break the inner loop to ask for a new product code
             else:
                 # Add the product to the cart
-                cart.append({"code": code, "type": product["type"], "price": product["price"], "quantity": itemQ})
-                product["quantity"] -= itemQ  # Update the product quantity in stock
-                cart_total += itemQ * product["price"]  # Update the cart total
+                cart.append({"code": code, "type": product[2], "price": product[3], "quantity": itemQ})
+                cursor.execute("UPDATE products SET quantity = ? WHERE productCode = ?", (product[5] - itemQ, code))
+                conn.commit()
+                cart_total += itemQ * product[3]  # Update the cart total
                 cart_quantity += itemQ  # Update the total quantity in the cart
                 print("==========================================================")
                 print("Your Subtotal is: $", "{:.2f}".format(cart_total))
@@ -158,16 +219,22 @@ def buy_product():
         print("__________________________________________________________")
         print(f" TOTAL\t\t\t\t\t\t{total:.2f}")
         print("__________________________________________________________\n")
-        
-    
+
+
 #not required, I added this function as i think it will best fit in the stock management scenario    
 def stocklist():
     print("__________________________________________________________________________")
     print("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}".format("CODE", "TYPE", "PRICE", "MATERIAL", "QUANTITY"))
     print("__________________________________________________________________________")
-    for code, product in products.items():
-        print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(code, product["type"], "{:.2f}".format(product["price"]), product["material"], product["quantity"]))
+
+    # Fetch all products from the database
+    cursor.execute("SELECT * FROM products")
+    products = cursor.fetchall()
+
+    for product in products:
+        print("{0}\t\t{1}\t{2}\t\t{3}\t\t{4}".format(product[1], product[2], "{:.2f}".format(product[3]), product[4], product[5]))
         print()
+
     print("__________________________________________________________________________")
 
     
@@ -199,13 +266,18 @@ while True:
         
     if option==1:
         while True:
-            code= int(input("Enter Jewellery Code:      "))
-            if code in products:
-                print("invalid, it is a pre-existing code, Please enter new code")
-            else:
-                add_product(code)
-                print()
-                break
+            try:
+                code = int(input("Enter Jewellery Code: "))
+                cursor.execute("SELECT COUNT(*) FROM products WHERE productCode = ?", (code,))
+                if cursor.fetchone()[0] > 0:
+                    print("Invalid! This code already exists. Please enter a new code.")
+                else:
+                    add_product(code)
+                    print()
+                    break
+            except ValueError:
+                print("Invalid input! Please enter a valid integer code.")
+                continue
     elif option==2:
         search_product(check_product())
     elif option==3:
@@ -215,7 +287,6 @@ while True:
     elif option==5:
         print("Goodbye!")
         break
-    #only allows user to enter numbers 1-5 otherwise system will show invalid input
     else:
         print("Invalid input! Please enter a number between 1 and 5.")
         
